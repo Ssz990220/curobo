@@ -15,6 +15,7 @@ import time
 # Third Party
 import numpy as np
 import torch
+import pandas as pd
 
 # CuRobo
 from curobo.cuda_robot_model.cuda_robot_model import CudaRobotModel, CudaRobotModelConfig
@@ -97,24 +98,21 @@ def bench_collision_curobo(robot_file, world_file, q_test, use_cuda_graph=True):
         with torch.cuda.graph(g):
             out = arm_base.rollout_constraint(q_warm)
 
+        ts = []
         for _ in range(10):
-            q.copy_(q_warm.detach())
+            st_time = time.time()
+            q.copy_(q_test.detach().requires_grad_(False))
             g.replay()
             a = out.feasible
+            torch.cuda.synchronize()
+            dt = time.time() - st_time
+            ts.append(dt)
             # print(a)
             # a = ee_mat.clone()
         # q_new = torch.rand((b_size, robot_model.get_dof()), **vars(tensor_args))
 
-        torch.cuda.synchronize()
-        st_time = time.time()
-
-        q.copy_(q_test.detach().requires_grad_(False))
-        g.replay()
-        a = out.feasible
-        # print(a)
-        # a = ee_mat.clone()
-        torch.cuda.synchronize()
-        dt = time.time() - st_time
+        # return the median time
+        dt = np.median(ts)
     return dt
 
 
@@ -192,13 +190,12 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    b_list = [8, 8, 16, 32, 64, 128, 256,512,1024,2048,4096]
+    b_list = [1, 1, 2, 4, 8, 16, 32, 64, 128, 256,512,1024,2048,4096]
 
     robot_list = get_robot_list()
     robot_list = [robot_list[0]]
 
-    world_files = ["benchmark_shelf","benchmark_shelf_dense"];
-    # world_file = "benchmark_manufacturing.yml"
+    world_files = ["benchmark_shelf","benchmark_shelf_dense","benchmark_manufacturing","benchmark_manufacturing_simple", "benchmark_manufacturing_very_simple", "benchmark_shelf_simple"];
 
     print("running...")
     for world in world_files:
@@ -231,3 +228,5 @@ if __name__ == "__main__":
                 data["Kinematics"].append(dt_kin_cg)
                 data["Batch Size"].append(b_size)
         write_yaml(data, join_path(args.save_path, args.file_name + "_" + world + ".yml"))
+        df = pd.DataFrame(data)
+        df.to_csv(join_path(args.save_path, args.file_name + ".csv"))

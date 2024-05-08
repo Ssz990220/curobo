@@ -156,7 +156,7 @@ if __name__ == "__main__":
     robot_list = [robot_list[0]]
 
     sweep_steps = [1, 2, 4, 7, 8]
-    b_list = [1024,2048,4096,8192,14400]
+    b_list = [256,512,1024,2048,4096]
 
     world_file = "benchmark_shelf.yml"
 
