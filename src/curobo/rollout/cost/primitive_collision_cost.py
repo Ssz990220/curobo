@@ -129,45 +129,45 @@ class PrimitiveCollisionCost(CostBase, PrimitiveCollisionCostConfig):
             cost = weight_distance(dist, self.sum_distance)
         return cost
 
-    def sweep_fn(self, robot_spheres_in, env_query_idx: Optional[torch.Tensor] = None):
-        batch_size, horizon, n_spheres, _ = robot_spheres_in.shape
-        # add intermediate spheres to account for discretization:
-        new_horizon = (horizon - 1) * self.sweep_steps
-        if self.int_mat is None:
-            self.int_mat = interpolate_kernel(horizon, self.sweep_steps, self.tensor_args)
-            self.int_mat_t = self.int_mat.transpose(0, 1)
-            self.int_sum_mat = sum_matrix(horizon, self.sweep_steps, self.tensor_args)
-        sampled_spheres = (
-            (robot_spheres_in.transpose(1, 2).transpose(2, 3) @ self.int_mat_t)
-            .transpose(2, 3)
-            .transpose(1, 2)
-            .contiguous()
-        )
-        # robot_spheres = sampled_spheres.view(batch_size * new_horizon * n_spheres, 4)
-        # self.update_batch_size(batch_size * new_horizon * n_spheres)
+    # def sweep_fn(self, robot_spheres_in, env_query_idx: Optional[torch.Tensor] = None):
+    #     batch_size, horizon, n_spheres, _ = robot_spheres_in.shape
+    #     # add intermediate spheres to account for discretization:
+    #     new_horizon = (horizon - 1) * self.sweep_steps
+    #     if self.int_mat is None:
+    #         self.int_mat = interpolate_kernel(horizon, self.sweep_steps, self.tensor_args)
+    #         self.int_mat_t = self.int_mat.transpose(0, 1)
+    #         self.int_sum_mat = sum_matrix(horizon, self.sweep_steps, self.tensor_args)
+    #     sampled_spheres = (
+    #         (robot_spheres_in.transpose(1, 2).transpose(2, 3) @ self.int_mat_t)
+    #         .transpose(2, 3)
+    #         .transpose(1, 2)
+    #         .contiguous()
+    #     )
+    #     # robot_spheres = sampled_spheres.view(batch_size * new_horizon * n_spheres, 4)
+    #     # self.update_batch_size(batch_size * new_horizon * n_spheres)
 
-        self._collision_query_buffer.update_buffer_shape(
-            sampled_spheres.shape, self.tensor_args, self.world_coll_checker.collision_types
-        )
-        if not self.sum_distance:
-            log_info("sum_distance=False will be slower than sum_distance=True")
-            self.return_loss = True
-        dist = self.coll_check_fn(
-            sampled_spheres.contiguous(),
-            self._collision_query_buffer,
-            self.weight,
-            activation_distance=self.activation_distance,
-            env_query_idx=env_query_idx,
-            return_loss=self.return_loss,
-        )
-        dist = dist.view(batch_size, new_horizon, n_spheres)
+    #     self._collision_query_buffer.update_buffer_shape(
+    #         sampled_spheres.shape, self.tensor_args, self.world_coll_checker.collision_types
+    #     )
+    #     if not self.sum_distance:
+    #         log_info("sum_distance=False will be slower than sum_distance=True")
+    #         self.return_loss = True
+    #     dist = self.coll_check_fn(
+    #         sampled_spheres.contiguous(),
+    #         self._collision_query_buffer,
+    #         self.weight,
+    #         activation_distance=self.activation_distance,
+    #         env_query_idx=env_query_idx,
+    #         return_loss=self.return_loss,
+    #     )
+    #     dist = dist.view(batch_size, new_horizon, n_spheres)
 
-        if self.classify:
-            cost = weight_sweep_collision(self.int_sum_mat, dist, self.sum_distance)
-        else:
-            cost = weight_sweep_distance(self.int_sum_mat, dist, self.sum_distance)
+    #     if self.classify:
+    #         cost = weight_sweep_collision(self.int_sum_mat, dist, self.sum_distance)
+    #     else:
+    #         cost = weight_sweep_distance(self.int_sum_mat, dist, self.sum_distance)
 
-        return cost
+    #     return cost
 
     def discrete_fn(self, robot_spheres_in, env_query_idx: Optional[torch.Tensor] = None):
         self._collision_query_buffer.update_buffer_shape(

@@ -83,9 +83,11 @@ def get_swept_closest_pt_batch_env(
     euclidean_distance = float(0.0)
     cl_pt = wp.vec3(0.0)
     local_pt = wp.vec3(0.0)
+
+    # read sphere_1
     in_sphere = pt[b_idx * horizon * nspheres + (h_idx * nspheres) + sph_idx]
     in_rad = in_sphere[3]
-    if in_rad < 0.0:
+    if in_rad < 0.0:    # if radius is negative, the sphere as deactivated, return 0
         distance[tid] = 0.0
         if write_grad == 1 and sparsity_idx[tid] == uint_one:
             sparsity_idx[tid] = uint_zero
@@ -104,16 +106,17 @@ def get_swept_closest_pt_batch_env(
 
     in_pt = wp.vec3(in_sphere[0], in_sphere[1], in_sphere[2])
     # read in sphere 0:
-    if h_idx > 0:
+    if h_idx > 0:   # read last sphere if sphere_1 is not the first one in the traj.
         in_sphere = pt[b_idx * horizon * nspheres + ((h_idx - 1) * nspheres) + sph_idx]
         sphere_0 += wp.vec3(in_sphere[0], in_sphere[1], in_sphere[2])
         sphere_0_distance = wp.length(sphere_0 - in_pt) / 2.0
-    if h_idx < horizon - 1:
+    # read in sphere 2:
+    if h_idx < horizon - 1:     # read next sphere if sphere_1 is not the last one in the traj
         in_sphere = pt[b_idx * horizon * nspheres + ((h_idx + 1) * nspheres) + sph_idx]
         sphere_2 += wp.vec3(in_sphere[0], in_sphere[1], in_sphere[2])
         sphere_2_distance = wp.length(sphere_2 - in_pt) / 2.0
 
-    # read in sphere 2:
+    # init variables
     closest_distance = float(0.0)
     closest_point = wp.vec3(0.0)
     i = int(0)
@@ -126,10 +129,11 @@ def get_swept_closest_pt_batch_env(
     n_mesh = i + n_env_mesh[env_idx]
     obj_position = wp.vec3()
 
-    while i < n_mesh:
-        if mesh_enable[i] == uint_one:
+    while i < n_mesh:      # Loop through all meshes in current environment
+        if mesh_enable[i] == uint_one:              # mesh enabled?
             # transform point to mesh frame:
             # mesh_pt = T_inverse @ w_pt
+            # transform in format: [x, y, z, qw, qx, qy, qz]
             obj_position[0] = mesh_pose[i * 8 + 0]
             obj_position[1] = mesh_pose[i * 8 + 1]
             obj_position[2] = mesh_pose[i * 8 + 2]
@@ -147,11 +151,11 @@ def get_swept_closest_pt_batch_env(
             if wp.mesh_query_point(
                 mesh[i], local_pt, max_dist_buffer, sign, face_index, face_u, face_v
             ):
-                cl_pt = wp.mesh_eval_position(mesh[i], face_index, face_u, face_v)
-                delta = cl_pt - local_pt
+                cl_pt = wp.mesh_eval_position(mesh[i], face_index, face_u, face_v)  # compute the closest point on the mesh
+                delta = cl_pt - local_pt            
                 dis_length = wp.length(delta)
-                dist = (-1.0 * dis_length * sign) + in_rad
-                if dist > 0:
+                dist = (-1.0 * dis_length * sign) + in_rad                          # compute the distance from the surface of the sphere to the mesh
+                if dist > 0:                                                        # if in collision
                     if dist == in_rad:
                         cl_pt = sign * (delta) / (dist)
                     else:
@@ -166,7 +170,7 @@ def get_swept_closest_pt_batch_env(
 
                     closest_distance += dist_metric
                     closest_point += grad_vec
-                else:
+                else:                                                               # if not in collision
                     dist = -1.0 * dist
                     euclidean_distance = dist
             else:
