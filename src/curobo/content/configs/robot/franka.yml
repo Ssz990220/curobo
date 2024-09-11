@@ -49,7 +49,7 @@ robot_cfg:
         "panda_rightfinger",
         "attached_object",
       ]
-    collision_spheres: "spheres/franka_mesh.yml"
+    collision_spheres: "spheres/franka_collision_spheres.yaml"
     collision_sphere_buffer: 0.004 # 0.0025
     extra_collision_spheres: {"attached_object": 4}
     use_global_cumul: True

@@ -38,7 +38,7 @@ constraint:
     weight: 2000.0
     use_sweep: True
     classify: True
-    sweep_steps: 7
+    sweep_steps: 3
   self_collision_cfg:
     weight: 1000.0
     classify: True
