@@ -62,17 +62,21 @@ def load_curobo(robot_file, world_file):
     return arm_base
 
 
-def bench_collision_curobo(robot_file, world_file, q_test, use_cuda_graph=True):
+def bench_collision_curobo(robot_file, world_file, arm_sampler, b_size, use_cuda_graph=True):
     arm_base = load_curobo(robot_file, world_file)
     arm_base.robot_self_collision_constraint.disable_cost()
     arm_base.bound_constraint.disable_cost()
+    
+    q_test = arm_sampler.sample_random_actions(b_size).cpu().numpy()
     # load graph module:
     tensor_args = TensorDeviceType()
     q_test = tensor_args.to_device(q_test).unsqueeze(1)
 
     tensor_args = TensorDeviceType()
+    
     q_warm = q_test + 0.5
 
+    ts = []
     if not use_cuda_graph:
         for _ in range(10):
             out = arm_base.rollout_constraint(q_warm)
@@ -80,11 +84,14 @@ def bench_collision_curobo(robot_file, world_file, q_test, use_cuda_graph=True):
 
         torch.cuda.synchronize()
 
-        st_time = time.time()
-        out = arm_base.rollout_constraint(q_test)
-
-        torch.cuda.synchronize()
-        dt = time.time() - st_time
+        for _ in range(100):
+            q_test = arm_sampler.sample_random_actions(b_size).cpu().numpy()
+            q_test = tensor_args.to_device(q_test).unsqueeze(1)
+            st_time = time.time()
+            out = arm_base.rollout_constraint(q_test)
+            torch.cuda.synchronize()
+            dt = time.time() - st_time
+            ts.append(dt)
     else:
         q = q_warm.clone()
 
@@ -98,8 +105,9 @@ def bench_collision_curobo(robot_file, world_file, q_test, use_cuda_graph=True):
         with torch.cuda.graph(g):
             out = arm_base.rollout_constraint(q_warm)
 
-        ts = []
-        for _ in range(10):
+        for _ in range(100):
+            q_test = arm_sampler.sample_random_actions(b_size).cpu().numpy()
+            q_test = tensor_args.to_device(q_test).unsqueeze(1)
             st_time = time.time()
             q.copy_(q_test.detach().requires_grad_(False))
             g.replay()
@@ -111,68 +119,12 @@ def bench_collision_curobo(robot_file, world_file, q_test, use_cuda_graph=True):
             # a = ee_mat.clone()
         # q_new = torch.rand((b_size, robot_model.get_dof()), **vars(tensor_args))
 
-        # return the median time
-        dt = np.median(ts)
+    # return the median time
+    dt = np.median(ts)
+
+    # convert dt to float
+    dt = float(dt)
     return dt
-
-
-def bench_kin_curobo(robot_file, q_test, use_cuda_graph=True, use_coll_spheres=True):
-    robot_data = load_yaml(join_path(get_robot_configs_path(), robot_file))["robot_cfg"]
-    if not use_coll_spheres:
-        robot_data["kinematics"]["collision_spheres"] = None
-        robot_data["kinematics"]["collision_link_names"] = None
-        robot_data["kinematics"]["use_global_cumul"] = False
-        robot_data["kinematics"]["lock_joints"] = {}
-    tensor_args = TensorDeviceType()
-    robot_data["kinematics"]["use_global_cumul"] = False
-
-    robot_cfg = RobotConfig.from_dict(robot_data)
-    robot_model = CudaRobotModel(robot_cfg.kinematics)
-
-    if not use_cuda_graph:
-        for _ in range(10):
-            q = torch.rand((b_size, robot_model.get_dof()), **vars(tensor_args))
-            out = robot_model.forward(q)
-            torch.cuda.synchronize()
-
-        q = torch.rand((b_size, robot_model.get_dof()), **vars(tensor_args))
-        torch.cuda.synchronize()
-
-        st_time = time.time()
-        out = robot_model.forward(q)
-        torch.cuda.synchronize()
-        dt = time.time() - st_time
-    else:
-        q = torch.rand((b_size, robot_model.get_dof()), **vars(tensor_args))
-
-        g = torch.cuda.CUDAGraph()
-        q = q.detach()
-        s = torch.cuda.Stream()
-        s.wait_stream(torch.cuda.current_stream())
-        with torch.cuda.stream(s):
-            for i in range(3):
-                ee_mat, _, _, _, _, _, _ = robot_model.forward(q=q)
-        torch.cuda.current_stream().wait_stream(s)
-        with torch.cuda.graph(g):
-            ee_mat, _, _, _, _, _, _ = robot_model.forward(q=q)
-        q_new = torch.rand((b_size, robot_model.get_dof()), **vars(tensor_args))
-
-        for _ in range(10):
-            q.copy_(q_new.detach().requires_grad_(False))
-            g.replay()
-            # a = ee_mat.clone()
-        q_new = torch.rand((b_size, robot_model.get_dof()), **vars(tensor_args))
-
-        torch.cuda.synchronize()
-        st_time = time.time()
-
-        q.copy_(q_new.detach().requires_grad_(False))
-        g.replay()
-        # a = ee_mat.clone()
-        torch.cuda.synchronize()
-        dt = time.time() - st_time
-    return dt
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -190,16 +142,17 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    b_list = [1, 1, 2, 4, 8, 16, 32, 64, 128, 256,512,1024,2048,4096]
+    b_list = [4096, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1]
 
     robot_list = get_robot_list()
     robot_list = [robot_list[0]]
 
-    world_files = ["benchmark_shelf","benchmark_shelf_dense","benchmark_manufacturing","benchmark_manufacturing_simple", "benchmark_manufacturing_very_simple", "benchmark_shelf_simple"];
+    world_files = ["benchmark_shelf","benchmark_shelf_simple"];
+    world_files = ["benchmark_shelf_dense"];
 
     print("running...")
     for world in world_files:
-        data = {"robot": [], "Kinematics": [], "Collision Checking": [], "Batch Size": []}
+        data = {"robot": [], "Collision Checking": [], "Batch Size": []}
         world_file = world + ".yml"
         for robot_file in robot_list:
             arm_sampler = load_curobo(robot_file, world_file)
@@ -208,25 +161,25 @@ if __name__ == "__main__":
             # create a sampler with dof:
             for b_size in b_list:
                 # sample test configs:
-                q_test = arm_sampler.sample_random_actions(b_size).cpu().numpy()
 
                 dt_cu_cg = bench_collision_curobo(
                     robot_file,
                     world_file,
-                    q_test,
+                    arm_sampler,
+                    b_size,
                     use_cuda_graph=False,
                 )
-                dt_kin_cg = bench_kin_curobo(
-                    robot_file, q_test, use_cuda_graph=True, use_coll_spheres=True
-                )
+                # dt_kin_cg = bench_kin_curobo(
+                #     robot_file, q_test, use_cuda_graph=True, use_coll_spheres=True
+                # )
 
                 if counter == 1:    # skip the first run
                     counter += 1
                     continue
                 data["robot"].append(robot_file)
                 data["Collision Checking"].append(dt_cu_cg)
-                data["Kinematics"].append(dt_kin_cg)
+                # data["Kinematics"].append(dt_kin_cg)
                 data["Batch Size"].append(b_size)
         write_yaml(data, join_path(args.save_path, args.file_name + "_" + world + ".yml"))
         df = pd.DataFrame(data)
-        df.to_csv(join_path(args.save_path, args.file_name + ".csv"))
+        df.to_csv(join_path(args.save_path, args.file_name + "_" + world + ".csv"))
