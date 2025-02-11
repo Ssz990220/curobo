@@ -22,6 +22,7 @@ import sys
 
 # Third Party
 import setuptools
+import os
 from torch.utils.cpp_extension import BuildExtension, CUDAExtension
 
 extra_cuda_args = {
@@ -37,6 +38,7 @@ extra_cuda_args = {
 
 if sys.platform == "win32":
     extra_cuda_args["nvcc"].append("--allow-unsupported-compiler")
+    extra_cuda_args["nvcc"].append("-D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH")
 
 # create a list of modules to be compiled:
 ext_modules = [
@@ -88,6 +90,6 @@ ext_modules = [
 setuptools.setup(
     ext_modules=ext_modules,
     cmdclass={"build_ext": BuildExtension},
-    package_data={"": ["*.so"]},
+    package_data={"": ["*.pyd"]} if os.name == "nt" else {"": ["*.so"]},  # Windows uses .pyd
     include_package_data=True,
 )
