@@ -1,0 +1,193 @@
+<?xml version="1.0" ?>
+<robot name="ra830">
+	<link name="base">
+		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/base_visual.obj"/>
+			</geometry>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/base_collision.obj"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="j1" type="revolute">
+		<parent link="base"/>
+		<child link="shoulder_1"/>
+		<origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+		<limit effort="4900.00000" lower="-0.52360" upper="3.14160" velocity="2.13710"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<axis xyz="0.00000 0.00000 1.00000"/>
+	</joint>
+	<link name="shoulder_1">
+		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/shoulder_1_visual.obj"/>
+			</geometry>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/shoulder_1_collision.obj"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="j2" type="revolute">
+		<parent link="shoulder_1"/>
+		<child link="shoulder_2"/>
+		<origin rpy="0.0 0.0 0.0" xyz="0.575 0.0 0.6486"/>
+		<limit effort="4410.00000" lower="-4.71240" upper="0.78540" velocity="3.20560"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<axis xyz="0.00000 0.00000 1.00000"/>
+	</joint>
+	<link name="shoulder_2">
+		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/shoulder_2_visual.obj"/>
+			</geometry>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/shoulder_2_collision.obj"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="j3" type="revolute">
+		<parent link="shoulder_2"/>
+		<child link="shoulder_3"/>
+		<origin rpy="3.141592653530206 -1.5707926535897931 -1.570792653530206" xyz="0.15 0.0 0.0"/>
+		<limit effort="4830.00000" lower="-2.53070" upper="1.04720" velocity="2.92690"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<axis xyz="0.00000 0.00000 1.00000"/>
+	</joint>
+	<link name="shoulder_3">
+		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/shoulder_3_visual.obj"/>
+			</geometry>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/shoulder_3_collision.obj"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="j4" type="revolute">
+		<parent link="shoulder_3"/>
+		<child link="elbow_1"/>
+		<origin rpy="0.0 0.0 0.0" xyz="0.485 0.0 0.0"/>
+		<limit effort="2329.76000" lower="-2.26890" upper="0.00000" velocity="3.23630"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<axis xyz="0.00000 0.00000 1.00000"/>
+	</joint>
+	<link name="elbow_1">
+		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/elbow_1_visual.obj"/>
+			</geometry>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/elbow_1_collision.obj"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="j5" type="revolute">
+		<parent link="elbow_1"/>
+		<child link="elbow_2"/>
+		<origin rpy="0.0 0.0 0.0" xyz="0.385 0.0 0.0"/>
+		<limit effort="2058.00000" lower="-1.04720" upper="1.57080" velocity="2.87210"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<axis xyz="0.00000 0.00000 1.00000"/>
+	</joint>
+	<link name="elbow_2">
+		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/elbow_2_visual.obj"/>
+			</geometry>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/elbow_2_collision.obj"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="j6" type="revolute">
+		<parent link="elbow_2"/>
+		<child link="wrist_1"/>
+		<origin rpy="1.5708 0.0 0.0" xyz="0.15 -0.8675 0.0"/>
+		<limit effort="568.00000" lower="-3.49070" upper="3.49070" velocity="5.81770"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<axis xyz="0.00000 0.00000 1.00000"/>
+	</joint>
+	<link name="wrist_1">
+		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/wrist_1_visual.obj"/>
+			</geometry>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/wrist_1_collision.obj"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="j7" type="revolute">
+		<parent link="wrist_1"/>
+		<child link="wrist_2"/>
+		<origin rpy="-1.5707999999999993 0.0 0.0" xyz="0.0 0.0 0.0"/>
+		<limit effort="255.00000" lower="-2.44350" upper="2.44350" velocity="7.11060"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<axis xyz="0.00000 0.00000 1.00000"/>
+	</joint>
+	<link name="wrist_2">
+		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/wrist_2_visual.obj"/>
+			</geometry>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/wrist_2_collision.obj"/>
+			</geometry>
+		</collision>
+	</link>
+	<joint name="j8" type="revolute">
+		<parent link="wrist_2"/>
+		<child link="wrist_3"/>
+		<origin rpy="1.5708 0.0 0.0" xyz="0.0 -0.3255 0.0"/>
+		<limit effort="179.20000" lower="-6.28320" upper="6.28320" velocity="7.19950"/>
+		<dynamics damping="1.0" friction="0.0001"/>
+		<axis xyz="0.00000 0.00000 1.00000"/>
+	</joint>
+	<link name="wrist_3">
+		<visual>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/wrist_3_visual.obj"/>
+			</geometry>
+		</visual>
+		<collision>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+				<mesh filename="meshes/wrist_3_collision.obj"/>
+			</geometry>
+		</collision>
+	</link>
+</robot>

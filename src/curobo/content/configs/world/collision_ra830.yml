@@ -1,0 +1,40 @@
+mesh:
+  Box1:
+    pose: [0.0, 0.0, 0.0, 1.0, 0.0 ,0.0, 0.0]
+    file_path: "scene/RA830_Furniture/Box1.obj"
+  Box2:
+    pose: [0.0, 0.0, 0.0, 1.0, 0.0 ,0.0, 0.0]
+    file_path: "scene/RA830_Furniture/Box2.obj"
+  ceiling:
+    pose: [0.0, 0.0, 0.0, 1.0, 0.0 ,0.0, 0.0]
+    file_path: "scene/RA830_Furniture/ceiling.obj"
+  Chair:
+    pose: [0.0, 0.0, 0.0, 1.0, 0.0 ,0.0, 0.0]
+    file_path: "scene/RA830_Furniture/Chair.obj"
+  ClothRack:
+    pose: [0.0, 0.0, 0.0, 1.0, 0.0 ,0.0, 0.0]
+    file_path: "scene/RA830_Furniture/ClothRack.obj"
+  Dragon:
+    pose: [0.0, 0.0, 0.0, 1.0, 0.0 ,0.0, 0.0]
+    file_path: "scene/RA830_Furniture/Dragon.obj"
+  floor:
+    pose: [0.0, 0.0, 0.0, 1.0, 0.0 ,0.0, 0.0]
+    file_path: "scene/RA830_Furniture/floor.obj"
+  Lamp:
+    pose: [0.0, 0.0, 0.0, 1.0, 0.0 ,0.0, 0.0]
+    file_path: "scene/RA830_Furniture/Lamp.obj"
+  Sofa:
+    pose: [0.0, 0.0, 0.0, 1.0, 0.0 ,0.0, 0.0]
+    file_path: "scene/RA830_Furniture/Sofa.obj"
+  Vase:
+    pose: [0.0, 0.0, 0.0, 1.0, 0.0 ,0.0, 0.0]
+    file_path: "scene/RA830_Furniture/Vase.obj"
+  wallBack:
+    pose: [0.0, 0.0, 0.0, 1.0, 0.0 ,0.0, 0.0]
+    file_path: "scene/RA830_Furniture/wallBack.obj"
+  wallLeft:
+    pose: [0.0, 0.0, 0.0, 1.0, 0.0 ,0.0, 0.0]
+    file_path: "scene/RA830_Furniture/wallLeft.obj"
+  wallRight:
+    pose: [0.0, 0.0, 0.0, 1.0, 0.0 ,0.0, 0.0]
+    file_path: "scene/RA830_Furniture/wallRight.obj"

@@ -1,0 +1,85 @@
+robot_cfg:
+  kinematics:
+    # use_usd_kinematics: False
+    # isaac_usd_path: "/Isaac/Robots/Franka/franka.usd"
+    # usd_path: "robot/non_shipping/franka/franka_panda_meters.usda"
+    # usd_robot_root: "/panda"
+    # usd_flip_joints: ["panda_joint1","panda_joint2","panda_joint3","panda_joint4", "panda_joint5",
+    #   "panda_joint6","panda_joint7","panda_finger_joint1", "panda_finger_joint2"]
+    # usd_flip_joints: {
+    # "panda_joint1": "Z",
+    # "panda_joint2": "Z",
+    # "panda_joint3": "Z",
+    # "panda_joint4": "Z",
+    #  "panda_joint5": "Z",
+    # "panda_joint6": "Z",
+    # "panda_joint7": "Z",
+    # "panda_finger_joint1": "Y",
+    #  "panda_finger_joint2":  "Y",
+    # }
+
+    # usd_flip_joint_limits: ["panda_finger_joint2"]
+    urdf_path: "robot/ra830/ra830.urdf"
+    asset_root_path: "robot/ra830/"
+    base_link: "base"
+    ee_link: "wrist_3"
+    collision_link_names:
+      [
+        "base",
+        "shoulder_1",
+        "shoulder_2",
+        "shoulder_3",
+        "elbow_1",
+        "elbow_2",
+        "wrist_1",
+        "wrist_2",
+        "wrist_3",
+      ]
+    collision_spheres: "spheres/ra830.yml"
+    collision_sphere_buffer: 0.0
+    use_global_cumul: True
+    self_collision_ignore:
+      {
+        "base": ["shoulder_1","shoulder_2","shoulder_3","elbow_1","elbow_2","wrist_1","wrist_2","wrist_3"],
+        "shoulder_1": ["base","shoulder_2","shoulder_3","elbow_1","elbow_2","wrist_1","wrist_2","wrist_3"],
+        "shoulder_2": ["base","shoulder_1","shoulder_3","elbow_1","elbow_2","wrist_1","wrist_2","wrist_3"],
+        "shoulder_3": ["base","shoulder_1","shoulder_2","elbow_1","elbow_2","wrist_1","wrist_2","wrist_3"],
+        "elbow_1": ["base","shoulder_1","shoulder_2","shoulder_3","elbow_2","wrist_1","wrist_2","wrist_3"],
+        "elbow_2": ["base","shoulder_1","shoulder_2","shoulder_3","elbow_1","wrist_1","wrist_2","wrist_3"],
+        "wrist_1": ["base","shoulder_1","shoulder_2","shoulder_3","elbow_1","elbow_2","wrist_2","wrist_3"],
+        "wrist_2": ["base","shoulder_1","shoulder_2","shoulder_3","elbow_1","elbow_2","wrist_1","wrist_3"],
+        "wrist_3": ["base","shoulder_1","shoulder_2","shoulder_3","elbow_1","elbow_2","wrist_1","wrist_2"],
+      }
+
+    self_collision_buffer:
+      {
+        "base": 0.0,
+        "shoulder_1": 0.0,
+        "shoulder_2": 0.0,
+        "shoulder_3": 0.0,
+        "elbow_1": 0.0,
+        "elbow_2": 0.0,
+        "wrist_1": 0.0,
+        "wrist_2": 0.0,
+        "wrist_3": 0.0,
+      }
+    #link_names: ["panda_link4"]
+    mesh_link_names:
+      [
+        "base",
+        "shoulder_1",
+        "shoulder_2",
+        "shoulder_3",
+        "elbow_1",
+        "elbow_2",
+        "wrist_1",
+        "wrist_2",
+        "wrist_3",
+      ]
+    cspace:
+      joint_names: ["j1", "j2", "j3", "j4", "j5", "j6", "j7", "j8"]
+      retract_config: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      null_space_weight: [1,1,1,1,1,1,1,1]
+      cspace_distance_weight: [1,1,1,1,1,1,1,1]
+      max_acceleration: 15.0
+      max_jerk: 500.0
