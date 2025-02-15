@@ -1,0 +1,26 @@
+##
+## Copyright (c) 2023 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+##
+## NVIDIA CORPORATION, its affiliates and licensors retain all intellectual
+## property and proprietary rights in and to this material, related
+## documentation and any modifications thereto. Any use, reproduction,
+## disclosure or distribution of this material and related documentation
+## without an express license agreement from NVIDIA CORPORATION or
+## its affiliates is strictly prohibited.
+##
+model:
+  horizon: 2
+  state_filter_cfg:
+    filter_coeff:
+      position: 1.0
+      velocity: 1.0
+      acceleration: 0.0
+    enable: True
+  dt_traj_params:
+    base_dt: 0.02
+    base_ratio: 1.0
+    max_dt: 0.02
+  vel_scale: 1.0
+  control_space: 'POSITION'
+  teleport_mode: True
+  state_finite_difference_mode: "CENTRAL"
