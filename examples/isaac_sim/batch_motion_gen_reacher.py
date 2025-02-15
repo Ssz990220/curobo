@@ -10,6 +10,12 @@
 #
 
 
+try:
+    # Third Party
+    import isaacsim
+except ImportError:
+    pass
+
 # Third Party
 import torch
 
@@ -156,11 +162,11 @@ def main():
     default_config = robot_cfg["kinematics"]["cspace"]["retract_config"]
 
     print("warming up...")
-    motion_gen.warmup(
-        batch=n_envs,
-        batch_env_mode=True,
-        warmup_js_trajopt=False,
-    )
+    # motion_gen.warmup(
+    #     batch=n_envs,
+    #     batch_env_mode=True,
+    #     warmup_js_trajopt=False,
+    # )
 
     add_extensions(simulation_app, args.headless_mode)
     config = RobotWorldConfig.load_from_config(
