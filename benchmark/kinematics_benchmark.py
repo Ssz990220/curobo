@@ -11,6 +11,8 @@
 # Standard Library
 import argparse
 import time
+import os
+import matplotlib.pyplot as plt
 
 # Third Party
 import numpy as np
@@ -147,8 +149,8 @@ if __name__ == "__main__":
     robot_list = get_robot_list()
     robot_list = [robot_list[0]]
 
-    world_files = ["benchmark_shelf","benchmark_shelf_simple"];
-    world_files = ["benchmark_shelf_dense"];
+    world_files = ["benchmark_shelf_dense", "benchmark_shelf","benchmark_shelf_simple"];
+    # world_files = ["benchmark_shelf_dense"];
 
     print("running...")
     for world in world_files:
@@ -180,6 +182,23 @@ if __name__ == "__main__":
                 data["Collision Checking"].append(dt_cu_cg)
                 # data["Kinematics"].append(dt_kin_cg)
                 data["Batch Size"].append(b_size)
-        write_yaml(data, join_path(args.save_path, args.file_name + "_" + world + ".yml"))
+        write_yaml(data, os.path.join(args.save_path, args.file_name + "_" + world + ".yml"))
         df = pd.DataFrame(data)
-        df.to_csv(join_path(args.save_path, args.file_name + "_" + world + ".csv"))
+        df.to_csv(os.path.join(args.save_path, args.file_name + "_" + world + ".csv"))
+
+        # plot the time per pose vs batch size
+        plt.figure()
+        batchSize = df["Batch Size"][1:-1]
+        tBatch = df["Collision Checking"][1:-1]
+        tPerPose = tBatch / batchSize * 1e6
+
+        plt.plot(batchSize, tPerPose, label="Collision Checking")
+        plt.xscale("log", base=2)
+        plt.yscale("log", base=10)
+        plt.xlabel("Batch Size (log2)")
+        plt.ylabel("Time per Pose (us) (log10)")
+        plt.title("Time per Pose vs Batch Size")
+        plt.legend()
+        plt.grid(True, which="both", ls="--")
+        plt.savefig(os.path.join(args.save_path, args.file_name + "_" + world + "_time_per_pose.png"))
+        plt.show()

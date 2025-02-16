@@ -11,6 +11,7 @@
 # Standard Library
 import argparse
 import time
+import os
 
 # Third Party
 import numpy as np
@@ -208,12 +209,12 @@ if __name__ == "__main__":
                     data["sweep_steps"].append(step * 2 + 2)
                     data["Collision Checking"].append(dt_cu_cg)
                     data["Batch Size"].append(b_size)
-        write_yaml(data, join_path(args.save_path, "curobo_swept_" + world_file))
+        write_yaml(data, os.path.join(args.save_path, "curobo_swept_" + world_file))
         try:
             # Third Party
             import pandas as pd
 
             df = pd.DataFrame(data)
-            df.to_csv(join_path(args.save_path, args.file_name + ".csv"))
+            df.to_csv(os.path.join(args.save_path, args.file_name + ".csv"))
         except ImportError:
             pass
